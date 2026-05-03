@@ -182,17 +182,12 @@ if uploaded_file:
                         "": "#f2f2f2"
                     }.get(status, "#cccccc")
 
-                    events.append({
-                        "title": f"{row.get('Status')} | {status}",
-                        "start": event_date.strftime("%Y-%m-%d"),
-                        "color": color,
-                        "extendedProps": {
-                            "status": status,
-                            "dev": str(row.get("Dev Date")),
-                            "end": str(row.get("End Date")),
-                            "created": str(row.get("Created Date"))
-                        }
-                    })
+                events.append({
+    "title": f"{row.get('ID')} | {row.get('Status')} | {status}",
+    "start": event_date.strftime("%Y-%m-%d"),
+    "color": color,
+    "extendedProps": row.to_dict()   # 🔥 store everything
+})
 
             min_date = None
             if len(events) > 0:
@@ -204,15 +199,15 @@ if uploaded_file:
 
             cal_data = calendar(events=events, options=options)
 
-            st.subheader("📌 Selected Event Details")
+            st.subheader("📌 Selected Item Details")
 
-            if cal_data and "eventClick" in cal_data:
-                event = cal_data["eventClick"]["event"]
-                st.write(f"**Title:** {event.get('title')}")
-                st.write(f"**Date:** {event.get('start')}")
-                st.write(f"**Status:** {event['extendedProps'].get('status')}")
-                st.write(f"**Dev Date:** {event['extendedProps'].get('dev')}")
-                st.write(f"**End Date:** {event['extendedProps'].get('end')}")
-                st.write(f"**Created Date:** {event['extendedProps'].get('created')}")
-            else:
-                st.info("Click an event to see details.")
+if cal_data and "eventClick" in cal_data:
+    event = cal_data["eventClick"]["event"]
+    details = event.get("extendedProps", {})
+
+    with st.expander("🔍 View Full Details", expanded=True):
+        # Convert to DataFrame for clean display
+        details_df = pd.DataFrame(details.items(), columns=["Field", "Value"])
+        st.dataframe(details_df, use_container_width=True)
+else:
+    st.info("Click an event to view full details.")
