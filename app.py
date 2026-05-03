@@ -182,12 +182,12 @@ if uploaded_file:
                         "": "#f2f2f2"
                     }.get(status, "#cccccc")
 
-                events.append({
-    "title": f"{row.get('ID')} | {row.get('Status')} | {status}",
-    "start": event_date.strftime("%Y-%m-%d"),
-    "color": color,
-    "extendedProps": row.to_dict()   # 🔥 store everything
-})
+                    events.append({
+                        "title": f"{row.get('ID')} | {row.get('Status')} | {status}",
+                        "start": event_date.strftime("%Y-%m-%d"),
+                        "color": color,
+                        "extendedProps": row.to_dict()
+                    })
 
             min_date = None
             if len(events) > 0:
@@ -201,13 +201,16 @@ if uploaded_file:
 
             st.subheader("📌 Selected Item Details")
 
-if cal_data and "eventClick" in cal_data:
-    event = cal_data["eventClick"]["event"]
-    details = event.get("extendedProps", {})
+            if cal_data and "eventClick" in cal_data:
+                event = cal_data["eventClick"]["event"]
+                details = event.get("extendedProps", {})
 
-    with st.expander("🔍 View Full Details", expanded=True):
-        # Convert to DataFrame for clean display
-        details_df = pd.DataFrame(details.items(), columns=["Field", "Value"])
-        st.dataframe(details_df, use_container_width=True)
-else:
-    st.info("Click an event to view full details.")
+                st.write(f"### ID: {details.get('ID')}")
+                st.write(f"Status: {details.get('Status')}")
+                st.write(f"Delay Status: {details.get('Delay Status')}")
+
+                with st.expander("🔍 View Full Details", expanded=True):
+                    details_df = pd.DataFrame(details.items(), columns=["Field", "Value"])
+                    st.dataframe(details_df, use_container_width=True)
+            else:
+                st.info("Click an event to view full details.")
